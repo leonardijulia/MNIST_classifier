@@ -1,0 +1,5 @@
+# Ignore Python virtual environment
+exp/
+
+# Ignore Visual Studio Code settings
+.vs/
