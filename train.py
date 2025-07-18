@@ -1,39 +1,44 @@
+"""
+Trains a PyTorch image classification model using device-agnostic code.
+"""
+
+import os
 import torch
+import engine, model_builder, utils
+
 import torch.nn.functional as F
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
-from torch import optim
-from torch import nn
-from CNN import CNN
-from data_setup import *
-#from tqdm import tqdm
+from torch.utils.data import DataLoader
 
-device = "cuda"
+from torchvision import transforms
+
+device = "cuda" #if torch.cuda.is_available() else "cpu"
 input_size = 784
 num_classes = 10
 LR = 0.001
-num_epochs = 10
+NUM_EPOCHS = 10
 
-model = CNN(in_channels=1, num_classes=num_classes).to(device)
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr = LR)
+batch_size = 64
+train_dataset = datasets.MNIST(root="dataset/", download=True, train=True, transform=transforms.ToTensor())
+train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 
-for epoch in range(num_epochs):
-    print(f"Epoch [{epoch+1}/{num_epochs}]")
-    for batch_index, (data, targets) in enumerate(train_loader):
-        data = data.to(device)
-        targets = targets.to(device)
-        
-        # Forward pass
-        scores = model(data)
-        loss = criterion(scores, targets)
-        
-        # Backward pass
-        optimizer.zero_grad()
-        loss.backward()
-        
-        # Optimization step
-        optimizer.step()
-        
-        
-        
+test_dataset = datasets.MNIST(root="dataset/", download=True, train=False, transform=transforms.ToTensor())
+test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True)
+
+model = model_builder.CNN(in_channels=1, num_classes=num_classes).to(device)
+loss_fn = torch.nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), 
+                             lr = LR)
+
+engine.train(model=model,
+             train_dataloader=train_loader,
+             test_dataloader=test_loader,
+             loss_fn=loss_fn,
+             optimizer=optimizer,
+             epochs=NUM_EPOCHS,
+             device=device)
+
+utils.save_model(model=model,
+                 target_dir="models",
+                 model_name="testing_MNIST.pth")
