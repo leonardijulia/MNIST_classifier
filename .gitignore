@@ -4,5 +4,4 @@ exp/
 # Ignore Visual Studio Code settings
 .vs/
 models/
-dataset/
 _pycache_/
