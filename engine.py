@@ -33,8 +33,6 @@ def train_step(model: torch.nn.Module,
     
     # Loop through data loader batches
     for batch, (sample, target) in enumerate(dataloader):
-        print(next(model.parameters()).device)
-        print(device)
         sample, target = sample.to(device), target.to(device)  # Send data to target device
 
         pred = model(sample) # Forward pass
@@ -142,8 +140,6 @@ def train(model: torch.nn.Module,
                "test_acc": []}
     
     for epoch in tqdm(range(epochs)):
-        print(next(model.parameters()).device)
-        print(device)
         train_loss, train_acc = train_step(model=model,
                                            dataloader=train_dataloader,
                                            loss_fn=loss_fn,

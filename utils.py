@@ -3,6 +3,7 @@ Contains various utility functions for PyTorch model training and saving.
 """
 import torch
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 def save_model(model: torch.nn.Module,
                target_dir: str,
@@ -33,3 +34,15 @@ def save_model(model: torch.nn.Module,
     print(f"[INFO] Saving model to: {model_save_path}")
     torch.save(obj=model.state_dict(),
                f=model_save_path)
+    
+def plot_predictions(model, data_loader, device, n=6):
+    images, labels = next(iter(data_loader))
+    outputs = model(images.to(device))
+    _, preds = outputs.max(1)
+
+    fig, axes = plt.subplots(1, n, figsize=(12, 2))
+    for i in range(n):
+        axes[i].imshow(images[i][0], cmap="gray")
+        axes[i].set_title(f"Pred: {preds[i].item()}, Label: {labels[i].item()}")
+        axes[i].axis("off")
+    plt.show()
